@@ -2,7 +2,7 @@
 
 Seller-ready MVP cho "AI Operations Manager for Wildberries Sellers".
 
-Trong phase hien tai, san pham da chuyen sang `chat-first`: dashboard va extension van con, nhung `AI Copilot` la trung tam de seller hoi va giao viec theo ngon ngu tu nhien.
+Trong phase hien tai, san pham da chuyen sang `extension-first, chat-first`: Chrome extension la trai nghiem chinh de seller hoi va giao viec theo ngon ngu tu nhien, con web dashboard giu vai tro billing, settings nang cao, admin va trang chi tiet.
 
 Ban demo hien tai duoc toi uu cho sale/demo 3 phut:
 
@@ -11,12 +11,13 @@ Ban demo hien tai duoc toi uu cho sale/demo 3 phut:
 - co welcome prompts cho Copilot
 - co onboarding WB token de seller khong can hieu ky thuat
 - co demo data song dong de tra loi thuyet phuc cho cau hoi "Tai sao don giam?"
+- co multi-shop switcher ngay trong extension side panel
 
 ## Monorepo
 
 - `apps/api`: Express + Prisma + JWT auth + AI/WB/Telegram orchestration
-- `apps/web`: Next.js dashboard tieng Viet
-- `apps/extension`: Chrome extension MV3, build ra `apps/extension/dist`
+- `apps/web`: Next.js dashboard tieng Viet cho settings nang cao, billing placeholder, admin, Product Doctor chi tiet
+- `apps/extension`: Chrome extension MV3, trai nghiem seller chinh, build ra `apps/extension/dist`
 - `packages/shared`: shared types + Zod schemas
 - `packages/wb-client`: Wildberries client, mac dinh mock-first
 
@@ -62,6 +63,13 @@ pnpm dev
 pnpm --filter @wb/extension build
 ```
 
+8. Load extension:
+
+- vao `Chrome -> Extensions -> Load unpacked`
+- chon thu muc `apps/extension/dist`
+- bam icon extension hoac nut `WB Copilot` tren `seller.wildberries.ru`
+- dang nhap ngay trong side panel
+
 Luu y cho Windows/CI:
 
 - `apps/web` dung helper `scripts/next-build-with-retry.cjs` de build Next on dinh hon tren moi truong co file lock tam thoi.
@@ -76,6 +84,12 @@ Luu y cho Windows/CI:
 ## Seller-ready MVP co gi
 
 - Shop Health Report co `healthScore`, KPI summary, critical issues, growth opportunities, recommended actions
+- Extension-first multi-shop Copilot:
+  - dang nhap hoan toan trong side panel
+  - khong can popup de auth
+  - khong can nhap `shopId`, endpoint, raw JWT hay WB token raw vao chat
+  - shop switcher, add/reconnect/disconnect/sync ngay trong extension
+  - content-aware prompt tu `seller.wildberries.ru` de hieu "san pham nay", "review nay", "trang nay"
 - SKU Problem Detector: `GET /products/:shopId/problems`
 - Review Reply Queue: AI draft tieng Nga, approve, reject, confirm lan 2 truoc khi send that
 - Review Reply Queue mac dinh dry-run, chi gui that khi bat real write ro rang
@@ -88,6 +102,14 @@ Luu y cho Windows/CI:
   - intent router: `SHOP_HEALTH | SALES_DROP_ANALYSIS | REVIEW_MANAGEMENT | PRODUCT_DOCTOR | INVENTORY_RISK | SEO_OPTIMIZATION | COMPETITOR_WATCH | ACTION_EXECUTION | USAGE_BILLING | GENERAL_HELP`
   - rich cards: health, insight, product risk, review queue, inventory risk, action plan, usage limit
   - suggested actions chi map sang flow an toan co san, khong tu execute write nguy hiem
+- Rich seller cards trong extension:
+  - health
+  - insight
+  - product risk
+  - review queue
+  - inventory risk
+  - action plan
+  - usage limit
 - Seller operating mode `ASSISTANT | OPERATOR | MANAGER`
 - Telegram daily alert: connect chat id, test alert, daily summary, cron 9h server time
 - Telegram Copilot command dung chung backend tools: `/health`, `/reviews`, `/inventory`, `/report`
@@ -170,6 +192,7 @@ Before demo:
 
 - `docs/PRODUCT.md`
 - `docs/AI_AGENT.md`
+- `docs/EXTENSION.md`
 - `docs/DEMO_SCRIPT.md`
 - `docs/STAGING_DEPLOY.md`
 - `docs/WB_API.md`

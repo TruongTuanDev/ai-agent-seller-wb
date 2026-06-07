@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "node scripts/next-build-with-retry.cjs",
     "start": "next start",
-    "lint": "node scripts/next-build-with-retry.cjs"
+    "lint": "tsc -p tsconfig.lint.json --noEmit"
   },
   "dependencies": {
     "@wb/shared": "workspace:*",
@@ -20,6 +20,7 @@
     "@types/react-dom": "^18.3.1",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.49",
-    "tailwindcss": "^3.4.17"
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.2"
   }
 }

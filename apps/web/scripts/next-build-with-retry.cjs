@@ -1,4 +1,4 @@
-const { rmSync } = require("node:fs");
+const { existsSync, rmSync } = require("node:fs");
 const { spawnSync } = require("node:child_process");
 const { join } = require("node:path");
 
@@ -7,6 +7,10 @@ const nextDir = join(appDir, ".next");
 const maxAttempts = 3;
 
 function clean() {
+  if (!existsSync(nextDir)) {
+    return;
+  }
+
   let lastError;
   for (let attempt = 1; attempt <= 5; attempt += 1) {
     try {
@@ -19,6 +23,10 @@ function clean() {
   }
 
   if (lastError) {
+    if (lastError.code === "EPERM" && String(lastError.path ?? "").includes(`${nextDir}\\trace`)) {
+      console.warn("Skipping hard clean for .next/trace because Windows is still holding a lock; continuing with retry build.");
+      return;
+    }
     throw lastError;
   }
 }

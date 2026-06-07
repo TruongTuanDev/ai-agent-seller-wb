@@ -8,6 +8,7 @@ WB Operator AI Agent la "AI Operations Manager for Wildberries Sellers":
 - Cho seller thay ngay van de doanh thu, ton kho, review, SEO
 - Khong auto-hanh-dong nguy hiem khi seller chua approve
 - Trong phase hien tai, seller uu tien chat thay vi dashboard-driven thao tac tay
+- Chrome extension la trai nghiem chinh; web dashboard la lop ho tro cho settings nang cao, billing, admin va audit
 
 ## Nguoi dung muc tieu
 
@@ -19,7 +20,8 @@ WB Operator AI Agent la "AI Operations Manager for Wildberries Sellers":
 
 ### 0. AI Copilot chat-first
 
-- Tab trung tam: `AI Copilot`
+- Trung tam trai nghiem: `Chrome Extension Side Panel`
+- Web dashboard van co `AI Copilot`, nhung khong con la diem vao chinh
 - Welcome screen co prompt mau va huong dan seller hoi bang ngon ngu tu nhien
 - Seller co the hoi bang ngon ngu tu nhien:
   - "Tai sao don hang giam?"
@@ -36,6 +38,29 @@ WB Operator AI Agent la "AI Operations Manager for Wildberries Sellers":
   - `ASSISTANT`: chi tra loi
   - `OPERATOR`: co the tao action
   - `MANAGER`: tao action + de xuat chu dong hon
+
+### 0.2 Extension-first multi-shop UX
+
+- Dang nhap ngay trong side panel
+- Neu chua co shop:
+  - `Them Shop`
+  - `Dung Demo Shop`
+- Shop switcher tren header:
+  - dropdown shop
+  - health score
+  - connect status
+  - sync nhanh
+- Add shop modal:
+  - `Shop Name`
+  - `WB API Key`
+  - `Test Key`
+  - `Save Shop`
+- Khong luu WB API key trong extension
+- Context awareness tu `seller.wildberries.ru`:
+  - `pageType`
+  - `productId`
+  - `sku`
+  - `visibleTextSummary`
 
 ### 0.1 Demo-first UX
 
@@ -108,6 +133,7 @@ WB Operator AI Agent la "AI Operations Manager for Wildberries Sellers":
 ## Safety promise
 
 - WB token chi di qua backend va duoc encrypt
+- Extension chi luu backend auth token va active shop id
 - Gemini/WB secret khong hardcode
 - Action nguy hiem can approve + confirm lan 2
 - Moi approve/reject/execute deu tao AuditLog

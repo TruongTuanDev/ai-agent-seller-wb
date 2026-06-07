@@ -1,5 +1,6 @@
+import { ShopStatus } from "@prisma/client";
 import { Router } from "express";
-import { connectShopSchema, testWbTokenSchema } from "@wb/shared";
+import { connectShopSchema, testWbTokenSchema, updateShopSchema } from "@wb/shared";
 import { prisma } from "../../database/prisma";
 import { requireAuth, type AuthenticatedRequest } from "../../common/auth";
 import { encrypt } from "../../common/crypto";
@@ -12,7 +13,10 @@ export const shopsRouter = Router();
 
 shopsRouter.use(requireAuth);
 
-shopsRouter.post("/test-connection", async (req: AuthenticatedRequest, res) => {
+async function runTokenConnectionTest(req: AuthenticatedRequest, res: {
+  status(code: number): { json(payload: unknown): unknown };
+  json(payload: unknown): unknown;
+}) {
   const parsed = testWbTokenSchema.safeParse(req.body);
 
   if (!parsed.success) {
@@ -46,7 +50,10 @@ shopsRouter.post("/test-connection", async (req: AuthenticatedRequest, res) => {
       errors: [normalized.message || "Khong the ket noi Wildberries API"]
     });
   }
-});
+}
+
+shopsRouter.post("/test-connection", async (req: AuthenticatedRequest, res) => runTokenConnectionTest(req, res));
+shopsRouter.post("/test-token", async (req: AuthenticatedRequest, res) => runTokenConnectionTest(req, res));
 
 shopsRouter.post("/connect-token", async (req: AuthenticatedRequest, res) => {
   const parsed = connectShopSchema.safeParse(req.body);
@@ -82,7 +89,19 @@ shopsRouter.post("/connect-token", async (req: AuthenticatedRequest, res) => {
   const encryptedToken = encrypt(parsed.data.token, env.encryptionKey);
   const mergedScopes = Array.from(new Set([...parsed.data.tokenScopes, ...connection.scopes]));
 
-  if (!parsed.data.shopId) {
+  const duplicateShop = connection.seller?.sid
+    ? await prisma.shop.findFirst({
+        where: {
+          userId: req.user!.id,
+          wbSellerId: connection.seller.sid,
+          ...(parsed.data.shopId ? { id: { not: parsed.data.shopId } } : {})
+        }
+      })
+    : null;
+
+  const targetShopId = parsed.data.shopId ?? duplicateShop?.id;
+
+  if (!targetShopId) {
     try {
       await assertShopQuota(req.user!.id);
     } catch (error) {
@@ -92,14 +111,15 @@ shopsRouter.post("/connect-token", async (req: AuthenticatedRequest, res) => {
     }
   }
 
-  const shop = parsed.data.shopId
+  const shop = targetShopId
     ? await prisma.shop.update({
-        where: { id: parsed.data.shopId },
+        where: { id: targetShopId },
         data: {
           name: parsed.data.name,
           wbSellerId: connection.seller?.sid ?? parsed.data.wbSellerId,
           encryptedWbToken: encryptedToken,
-          tokenScopes: mergedScopes
+          tokenScopes: mergedScopes,
+          status: ShopStatus.ACTIVE
         }
       })
     : await prisma.shop.create({
@@ -108,7 +128,8 @@ shopsRouter.post("/connect-token", async (req: AuthenticatedRequest, res) => {
           name: parsed.data.name,
           wbSellerId: connection.seller?.sid ?? parsed.data.wbSellerId,
           encryptedWbToken: encryptedToken,
-          tokenScopes: mergedScopes
+          tokenScopes: mergedScopes,
+          status: ShopStatus.ACTIVE
         }
       });
 
@@ -124,7 +145,7 @@ shopsRouter.post("/connect-token", async (req: AuthenticatedRequest, res) => {
     }
   });
 
-  return res.status(201).json({
+  return res.status(targetShopId ? 200 : 201).json({
     shop,
     connection: {
       ok: Boolean(connection.seller) || client.getMode() === "mock",
@@ -148,6 +169,79 @@ shopsRouter.get("/", async (req: AuthenticatedRequest, res) => {
   });
 
   return res.json({ shops });
+});
+
+shopsRouter.patch("/:id", async (req: AuthenticatedRequest, res) => {
+  const shopId = String(req.params.id);
+  const parsed = updateShopSchema.safeParse(req.body ?? {});
+  if (!parsed.success) {
+    return res.status(400).json(parsed.error.flatten());
+  }
+
+  const existing = await prisma.shop.findFirst({
+    where: { id: shopId, userId: req.user!.id }
+  });
+
+  if (!existing) {
+    return res.status(404).json({ message: "Shop not found" });
+  }
+
+  const shop = await prisma.shop.update({
+    where: { id: shopId },
+    data: {
+      ...(parsed.data.name ? { name: parsed.data.name } : {}),
+      ...(parsed.data.status ? { status: parsed.data.status } : {})
+    }
+  });
+
+  await createAuditLog({
+    userId: req.user!.id,
+    shopId: shop.id,
+    action: "UPDATE_SHOP_SETTINGS",
+    entityType: "Shop",
+    entityId: shop.id,
+    metadataJson: {
+      changed: parsed.data
+    }
+  });
+
+  return res.json({ shop });
+});
+
+shopsRouter.delete("/:id", async (req: AuthenticatedRequest, res) => {
+  const shopId = String(req.params.id);
+  const existing = await prisma.shop.findFirst({
+    where: { id: shopId, userId: req.user!.id }
+  });
+
+  if (!existing) {
+    return res.status(404).json({ message: "Shop not found" });
+  }
+
+  const shop = await prisma.shop.update({
+    where: { id: shopId },
+    data: {
+      status: ShopStatus.DISCONNECTED,
+      tokenScopes: [],
+      encryptedWbToken: encrypt("disconnected-shop-token", env.encryptionKey)
+    }
+  });
+
+  await createAuditLog({
+    userId: req.user!.id,
+    shopId: shop.id,
+    action: "DISCONNECT_SHOP",
+    entityType: "Shop",
+    entityId: shop.id,
+    metadataJson: {
+      previousStatus: existing.status
+    }
+  });
+
+  return res.json({
+    ok: true,
+    shop
+  });
 });
 
 shopsRouter.get("/:id", async (req: AuthenticatedRequest, res) => {

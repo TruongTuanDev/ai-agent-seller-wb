@@ -19,12 +19,17 @@
 ## Copilot chat-first
 
 - API trung tam: `POST /copilot/chat`
+- Extension side panel la host UI uu tien cho Copilot
 - Kien truc:
   - `Message -> Intent Router -> Action Planner -> Safe Tools -> Insight Engine -> Response + Cards + Suggested Actions`
 - Demo-first UX:
   - welcome card cho dashboard va extension
   - prompt buttons cho cac cau hoi mau
   - `Chay demo 3 phut` de tao mot conversation sale-ready
+- Extension-first UX:
+  - login ngay trong side panel
+  - active shop duoc luu rieng va moi request chat bat buoc di kem `activeShopId`
+  - neu user hoi "toi uu san pham nay", extension se them page context thay vi bat user nho `productId`
 - AI tool surface:
   - `getShopHealth()`
   - `getProducts()`
@@ -89,6 +94,8 @@
   - `VIEW_INVENTORY_RISK`
   - `OPEN_ACTION_QUEUE`
   - `RUN_HEALTH_REPORT`
+  - `OPEN_WEB_DASHBOARD`
+- Extension khong render raw JSON mac dinh; debug details chi mo khi seller chu dong bam
 
 ## Copilot system prompt
 

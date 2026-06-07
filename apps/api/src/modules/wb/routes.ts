@@ -82,6 +82,9 @@ wbRouter.post("/:shopId/sync/products", async (req: AuthenticatedRequest, res) =
   if (!shop) {
     return res.status(404).json({ message: "Shop not found" });
   }
+  if (shop.status === "DISCONNECTED") {
+    return res.status(400).json({ message: "Shop dang o trang thai ngat ket noi. Hay reconnect token truoc khi sync." });
+  }
 
   const client = await getClient(shop);
   const products = await client.withRateLimit(() => client.products.list());
@@ -96,6 +99,9 @@ wbRouter.post("/:shopId/sync/feedbacks", async (req: AuthenticatedRequest, res) 
   if (!shop) {
     return res.status(404).json({ message: "Shop not found" });
   }
+  if (shop.status === "DISCONNECTED") {
+    return res.status(400).json({ message: "Shop dang o trang thai ngat ket noi. Hay reconnect token truoc khi sync." });
+  }
 
   const client = await getClient(shop);
   const feedbacks = await client.withRateLimit(() => client.feedbacks.list());
@@ -108,6 +114,9 @@ wbRouter.post("/:shopId/sync/analytics", async (req: AuthenticatedRequest, res) 
   const shop = await getShopForUser(shopId, req.user!.id);
   if (!shop) {
     return res.status(404).json({ message: "Shop not found" });
+  }
+  if (shop.status === "DISCONNECTED") {
+    return res.status(400).json({ message: "Shop dang o trang thai ngat ket noi. Hay reconnect token truoc khi sync." });
   }
 
   const client = await getClient(shop);
@@ -137,6 +146,21 @@ wbRouter.get("/:shopId/status", async (req: AuthenticatedRequest, res) => {
   const shop = await getShopForUser(shopId, req.user!.id);
   if (!shop) {
     return res.status(404).json({ message: "Shop not found" });
+  }
+  if (shop.status === "DISCONNECTED") {
+    return res.json({
+      shopId,
+      mode: "mock",
+      writeMode: "mock",
+      canWrite: false,
+      approvalRequired: true,
+      allowRealReplyTest: false,
+      connection: {
+        scopes: [],
+        capabilities: [],
+        errors: ["Shop dang ngat ket noi Wildberries. Hay reconnect token de tiep tuc."]
+      }
+    });
   }
 
   const client = await getClient(shop);

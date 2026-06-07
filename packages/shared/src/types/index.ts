@@ -285,7 +285,8 @@ export interface CopilotSuggestedAction {
     | "VIEW_INVENTORY_RISK"
     | "OPEN_ACTION_QUEUE"
     | "RUN_HEALTH_REPORT"
-    | "GENERATE_HEALTH_REPORT";
+    | "GENERATE_HEALTH_REPORT"
+    | "OPEN_WEB_DASHBOARD";
   title: string;
   reason: string;
   payload: Record<string, unknown>;

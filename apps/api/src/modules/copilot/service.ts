@@ -1014,6 +1014,13 @@ function buildSuggestedActions(input: {
       payload: { productId: doctor.data.productId },
       requiresApproval: false
     });
+    actions.push({
+      type: "OPEN_WEB_DASHBOARD",
+      title: "Mo dashboard chi tiet",
+      reason: "Can xem Product Doctor day du va cac cai dat nang cao tren web.",
+      payload: { path: `/products/${doctor.data.productId}/doctor` },
+      requiresApproval: false
+    });
   }
 
   if (inventory) {

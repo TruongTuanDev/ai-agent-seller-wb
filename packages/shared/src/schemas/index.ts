@@ -31,6 +31,11 @@ export const testWbTokenSchema = z.object({
   token: z.string().min(6)
 });
 
+export const updateShopSchema = z.object({
+  name: z.string().min(2).optional(),
+  status: z.enum(["ACTIVE", "DISCONNECTED", "ERROR"]).optional()
+});
+
 export const reviewDraftSchema = z.object({
   feedbackId: z.string().min(1).optional(),
   tone: z.enum(["polite", "friendly", "professional"]).default("professional"),

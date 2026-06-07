@@ -9,12 +9,15 @@
 ## Token safety
 
 - Dashboard chi gui WB token len backend cho flow test/connect
+- Extension side panel cung chi gui WB token mot lan cho flow `test-token`/`connect-token`
 - Backend khong bao gio tra WB token tho ve frontend hoac extension
 - Extension chi luu backend JWT, khong luu WB token
+- Extension chi luu them `activeShopId`, `apiBaseUrl`, `webBaseUrl` va DOM context khong nhay cam
 - Copilot chat, Telegram command va extension side panel deu dung lai backend token / session; khong co luong nao expose WB token trong card, conversation memory hay suggested action
 - Khi log loi WB/Gemini/Telegram, chi log status/message can thiet
 - Extension side panel mac dinh an `debug details`; khong hien raw JSON cho seller neu khong chu dong mo
 - Demo Mode va onboarding token cung khong hien token tho; chi hien seller info, scopes va trang thai ket noi
+- Sau khi `Save Shop`, extension xoa key khoi local state ngay lap tuc
 
 ## Approval safety
 

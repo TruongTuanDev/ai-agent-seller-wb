@@ -6,7 +6,7 @@ import { PricesModule } from "./modules/prices";
 import { ProductsModule } from "./modules/products";
 import { ReportsModule } from "./modules/reports";
 import { StocksModule } from "./modules/stocks";
-import type { WbClientOptions, WbConnectionCheck, WbSellerInfo } from "./types";
+import type { WbClientOptions, WbConnectionCheck, WbNormalizedError, WbSellerInfo } from "./types";
 
 export class WbClient {
   private readonly http: WbHttpClient;
@@ -32,6 +32,10 @@ export class WbClient {
 
   getMode() {
     return this.http.getMode();
+  }
+
+  getWriteMode() {
+    return this.http.getWriteMode();
   }
 
   async withRateLimit<T>(handler: () => Promise<T>): Promise<T> {
@@ -100,18 +104,28 @@ export class WbClient {
     };
   }
 
-  normalizeError(error: unknown) {
+  normalizeError(error: unknown): WbNormalizedError {
     if (error instanceof Error) {
       return {
+        statusCode: "statusCode" in error
+          ? (error as { statusCode?: number }).statusCode
+          : "status" in error
+            ? (error as { status?: number }).status
+            : undefined,
+        code: "code" in error ? (error as { code?: string }).code : undefined,
         message: error.message,
+        details: "details" in error ? (error as { details?: unknown }).details : undefined,
+        retryable: "retryable" in error ? Boolean((error as { retryable?: boolean }).retryable) : false,
         mode: this.getMode(),
-        status: "status" in error ? (error as { status?: number }).status : undefined,
-        code: "code" in error ? (error as { code?: string }).code : undefined
       };
     }
 
     return {
+      statusCode: undefined,
+      code: "WB_UNKNOWN_ERROR",
       message: "Unknown Wildberries client error",
+      details: error,
+      retryable: false,
       mode: this.getMode()
     };
   }

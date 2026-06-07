@@ -34,7 +34,7 @@ export function analyzeProductProblems(products: Product[], feedbacks: Feedback[
   return products
     .map<ProductProblem | null>((product) => {
       const productFeedbacks = feedbacks.filter((feedback) => feedback.productId === product.id);
-      const unansweredReviews = productFeedbacks.filter((feedback) => feedback.status !== "REPLIED").length;
+      const unansweredReviews = productFeedbacks.filter((feedback) => feedback.status !== "SENT").length;
       const negativeReviews = productFeedbacks.filter((feedback) => feedback.rating <= 3).length;
       const reasons: string[] = [];
 

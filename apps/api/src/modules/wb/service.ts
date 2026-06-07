@@ -57,7 +57,7 @@ export async function persistFeedbacks(shopId: string, feedbacks: WbFeedback[]) 
       productId: productByNmId.get(feedback.productNmId),
       rating: feedback.rating,
       text: feedback.text,
-      status: feedback.answered ? FeedbackStatus.REPLIED : FeedbackStatus.NEW,
+      status: feedback.answered ? FeedbackStatus.SENT : FeedbackStatus.NEW,
       createdAt: feedback.createdAt ? new Date(feedback.createdAt) : new Date()
     }))
   });

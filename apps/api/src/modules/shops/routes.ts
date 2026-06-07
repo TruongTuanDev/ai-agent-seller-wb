@@ -6,6 +6,7 @@ import { encrypt } from "../../common/crypto";
 import { env } from "../../config/env";
 import { createAuditLog } from "../../common/audit";
 import { WbClient } from "@wb/wb-client";
+import { assertShopQuota } from "../../common/usage";
 
 export const shopsRouter = Router();
 
@@ -21,7 +22,8 @@ shopsRouter.post("/test-connection", async (req: AuthenticatedRequest, res) => {
   const client = new WbClient({
     token: parsed.data.token,
     mock: !env.enableRealWbApi,
-    enableRealApi: env.enableRealWbApi
+    enableRealApi: env.enableRealWbApi,
+    writeDryRun: env.wbWriteDryRun
   });
 
   try {
@@ -56,7 +58,8 @@ shopsRouter.post("/connect-token", async (req: AuthenticatedRequest, res) => {
   const client = new WbClient({
     token: parsed.data.token,
     mock: !env.enableRealWbApi,
-    enableRealApi: env.enableRealWbApi
+    enableRealApi: env.enableRealWbApi,
+    writeDryRun: env.wbWriteDryRun
   });
 
   const connection = await client.testConnection().catch((error) => {
@@ -78,6 +81,16 @@ shopsRouter.post("/connect-token", async (req: AuthenticatedRequest, res) => {
 
   const encryptedToken = encrypt(parsed.data.token, env.encryptionKey);
   const mergedScopes = Array.from(new Set([...parsed.data.tokenScopes, ...connection.scopes]));
+
+  if (!parsed.data.shopId) {
+    try {
+      await assertShopQuota(req.user!.id);
+    } catch (error) {
+      return res.status(403).json({
+        message: error instanceof Error ? error.message : "Khong the them shop moi luc nay."
+      });
+    }
+  }
 
   const shop = parsed.data.shopId
     ? await prisma.shop.update({

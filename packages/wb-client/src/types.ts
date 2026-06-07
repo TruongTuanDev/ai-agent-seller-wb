@@ -2,8 +2,11 @@ export interface WbClientOptions {
   token: string;
   mock?: boolean;
   enableRealApi?: boolean;
+  writeDryRun?: boolean;
   requestDelayMs?: number;
 }
+
+export type WbExecutionMode = "mock" | "dry_run" | "real_write";
 
 export interface WbSellerInfo {
   name?: string;
@@ -73,7 +76,30 @@ export interface WbConnectionCheck {
 
 export interface WbRequestError extends Error {
   status?: number;
+  statusCode?: number;
   code?: string;
   details?: unknown;
+  retryable?: boolean;
   mode: "mock" | "real";
+}
+
+export interface WbNormalizedError {
+  statusCode?: number;
+  code?: string;
+  message: string;
+  details?: unknown;
+  retryable: boolean;
+  mode: "mock" | "real";
+}
+
+export interface WbReplyFeedbackResult {
+  ok: true;
+  mode: WbExecutionMode;
+  dryRun: boolean;
+  statusCode?: number;
+  feedbackId: string;
+  response?: {
+    statusCode: number;
+    message: string;
+  };
 }

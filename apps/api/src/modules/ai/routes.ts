@@ -2,7 +2,8 @@ import { ActionType, FeedbackStatus, Prisma } from "@prisma/client";
 import { Router } from "express";
 import { reviewDraftSchema } from "@wb/shared";
 import { prisma } from "../../database/prisma";
-import { requireAuth } from "../../common/auth";
+import { requireAuth, type AuthenticatedRequest } from "../../common/auth";
+import { assertUsageAvailable, incrementUsage } from "../../common/usage";
 import { analyzeProductProblems, getProductReviewWarnings } from "../products/service";
 import { getAiProvider } from "./provider";
 
@@ -11,9 +12,17 @@ const aiProvider = getAiProvider();
 
 aiRouter.use(requireAuth);
 
-aiRouter.post("/:shopId/health-report", async (req, res) => {
-  const shop = await prisma.shop.findUnique({
-    where: { id: req.params.shopId },
+aiRouter.post("/:shopId/health-report", async (req: AuthenticatedRequest, res) => {
+  const shopId = String(req.params.shopId);
+
+  try {
+    await assertUsageAvailable(req.user!.id, "healthReport");
+  } catch (error) {
+    return res.status(403).json({ message: error instanceof Error ? error.message : "Vuot quota health report." });
+  }
+
+  const shop = await prisma.shop.findFirst({
+    where: { id: shopId, userId: req.user!.id },
     include: {
       products: true,
       feedbacks: true,
@@ -76,18 +85,27 @@ aiRouter.post("/:shopId/health-report", async (req, res) => {
     });
   }
 
+  await incrementUsage(req.user!.id, "healthReport");
+
   return res.json({ report: savedReport, analysis: report });
 });
 
-aiRouter.post("/:shopId/review-reply-draft", async (req, res) => {
+aiRouter.post("/:shopId/review-reply-draft", async (req: AuthenticatedRequest, res) => {
+  const shopId = String(req.params.shopId);
   const parsed = reviewDraftSchema.safeParse(req.body ?? {});
   if (!parsed.success) {
     return res.status(400).json(parsed.error.flatten());
   }
 
+  try {
+    await assertUsageAvailable(req.user!.id, "reviewDraft");
+  } catch (error) {
+    return res.status(403).json({ message: error instanceof Error ? error.message : "Vuot quota AI review draft." });
+  }
+
   const feedback = await prisma.feedback.findFirst({
     where: {
-      shopId: req.params.shopId,
+      shopId,
       ...(parsed.data.feedbackId ? { id: parsed.data.feedbackId } : { status: FeedbackStatus.NEW })
     },
     include: { product: true },
@@ -130,6 +148,7 @@ aiRouter.post("/:shopId/review-reply-draft", async (req, res) => {
     feedbackId: feedback.id,
     wbFeedbackId: feedback.wbFeedbackId,
     productId: feedback.productId,
+    replyText: result.reply,
     draftReply: result.reply,
     tone: result.tone
   };
@@ -151,12 +170,15 @@ aiRouter.post("/:shopId/review-reply-draft", async (req, res) => {
         }
       });
 
+  await incrementUsage(req.user!.id, "reviewDraft");
+
   return res.json({ feedback: updated, draft: result, action });
 });
 
 aiRouter.post("/:shopId/product-doctor", async (req, res) => {
+  const shopId = String(req.params.shopId);
   const product = await prisma.product.findFirst({
-    where: { shopId: req.params.shopId },
+    where: { shopId },
     include: { feedbacks: { orderBy: { createdAt: "desc" }, take: 12 } }
   });
 

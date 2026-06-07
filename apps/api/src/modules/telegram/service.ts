@@ -70,7 +70,7 @@ export async function createDailyHealthSummary(shopId: string) {
     ? (latestReport.detailsJson as Record<string, unknown>)
     : null;
   const problems = analyzeProductProblems(shop.products, shop.feedbacks);
-  const pendingReviewCount = shop.feedbacks.filter((feedback) => feedback.status !== "REPLIED").length;
+  const pendingReviewCount = shop.feedbacks.filter((feedback) => feedback.status !== "SENT").length;
   const suggestedLines = Array.isArray(details?.growthOpportunities)
     ? (details.growthOpportunities as Array<Record<string, unknown>>).map((item) => String(item.action ?? item.title ?? "Theo doi shop sat hon"))
     : [

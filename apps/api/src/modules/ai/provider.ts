@@ -105,7 +105,7 @@ export class MockAiProvider implements AiProvider {
     const criticalProducts = productProblems.slice(0, 3);
     const feedbacks = input.feedbacks;
     const negativeReviewCount = feedbacks.filter((item) => Number(item["rating"] ?? 0) <= 3).length;
-    const pendingReviewCount = feedbacks.filter((item) => String(item["status"] ?? "NEW") !== "REPLIED").length;
+    const pendingReviewCount = feedbacks.filter((item) => String(item["status"] ?? "NEW") !== "SENT").length;
     const lowStockCount = Number(input.inventory["lowStockCount"] ?? criticalProducts.length);
     const score = Math.max(42, 88 - criticalProducts.length * 8 - Math.min(negativeReviewCount * 2, 16) - Math.min(lowStockCount, 10));
 

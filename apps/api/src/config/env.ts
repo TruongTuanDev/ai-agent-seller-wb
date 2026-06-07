@@ -6,9 +6,14 @@ const envPath = resolve(dirname(fileURLToPath(import.meta.url)), "../../../../.e
 dotenv.config({ path: envPath });
 
 export const env = {
+  nodeEnv: process.env.NODE_ENV ?? "development",
   port: Number(process.env.PORT ?? 4000),
+  databaseUrl: process.env.DATABASE_URL ?? "",
+  redisUrl: process.env.REDIS_URL ?? "",
   jwtSecret: process.env.JWT_SECRET ?? "change-me",
   encryptionKey: process.env.ENCRYPTION_KEY ?? "32-byte-demo-key-change-me-now!!!",
+  apiBaseUrl: process.env.API_BASE_URL ?? `http://localhost:${Number(process.env.PORT ?? 4000)}`,
+  webBaseUrl: process.env.WEB_BASE_URL ?? process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3000",
   aiProvider: process.env.AI_PROVIDER ?? "mock",
   geminiApiKey: process.env.GEMINI_API_KEY ?? "",
   geminiModel: process.env.GEMINI_MODEL ?? "gemini-2.5-flash",
@@ -16,5 +21,6 @@ export const env = {
   telegramDailyAlertEnabled: process.env.TELEGRAM_DAILY_ALERT_ENABLED === "true",
   telegramDailyAlertHour: Number(process.env.TELEGRAM_DAILY_ALERT_HOUR ?? 9),
   enableRealWbApi: process.env.ENABLE_REAL_WB_API === "true",
+  wbWriteDryRun: process.env.WB_WRITE_DRY_RUN !== "false",
   wbApiBaseUrl: process.env.WB_API_BASE_URL ?? "https://common-api.wildberries.ru"
 };

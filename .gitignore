@@ -9,3 +9,5 @@ apps/web/.next
 apps/extension/dist
 apps/api/dist
 prisma/dev.db
+tmp-*.log
+tmp-*.json

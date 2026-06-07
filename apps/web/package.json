@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "node -e \"require('node:fs').rmSync('.next',{recursive:true,force:true})\" && next build",
+    "build": "node scripts/next-build-with-retry.cjs",
     "start": "next start",
-    "lint": "node -e \"require('node:fs').rmSync('.next',{recursive:true,force:true})\" && (next build || next build)"
+    "lint": "node scripts/next-build-with-retry.cjs"
   },
   "dependencies": {
     "@wb/shared": "workspace:*",

@@ -1,50 +1,51 @@
-const rootId = "wb-operator-ai-agent-root";
+async function syncDomContext() {
+  const domContext = {
+    url: location.href,
+    title: document.title,
+    kpiHints: Array.from(document.querySelectorAll("[data-testid], h1, h2"))
+      .slice(0, 5)
+      .map((item) => item.textContent?.trim())
+      .filter(Boolean)
+  };
 
-function createButton(label: string, action: string) {
-  const button = document.createElement("button");
-  button.textContent = label;
-  button.dataset.action = action;
-  button.style.cssText = "padding:10px 14px;border-radius:12px;border:none;background:#111827;color:#fff;cursor:pointer;font-size:12px;";
-  return button;
+  await chrome.storage.local.set({ domContext });
 }
 
-function mount() {
-  if (document.getElementById(rootId)) return;
+function mountCopilotButton() {
+  if (document.getElementById("wb-operator-copilot-button")) {
+    return;
+  }
 
-  const container = document.createElement("div");
-  container.id = rootId;
-  container.style.cssText = "position:fixed;right:16px;bottom:16px;z-index:999999;display:flex;gap:8px;flex-direction:column;background:#ffffff;padding:12px;border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,0.18);";
-
-  const title = document.createElement("div");
-  title.textContent = "WB Copilot";
-  title.style.cssText = "font:600 13px system-ui;color:#111827;";
-  container.appendChild(title);
-
-  ["Analyze Shop", "Generate Review Replies", "Product Doctor"].forEach((label) => {
-    container.appendChild(createButton(label, label));
+  const button = document.createElement("button");
+  button.id = "wb-operator-copilot-button";
+  button.textContent = "WB Copilot";
+  Object.assign(button.style, {
+    position: "fixed",
+    right: "20px",
+    bottom: "20px",
+    zIndex: "999999",
+    padding: "12px 16px",
+    borderRadius: "999px",
+    border: "none",
+    background: "linear-gradient(135deg, #f59e0b, #fb7185)",
+    color: "#111827",
+    fontWeight: "700",
+    boxShadow: "0 12px 28px rgba(0,0,0,0.22)",
+    cursor: "pointer"
   });
 
-  container.addEventListener("click", async (event) => {
-    const target = event.target as HTMLElement;
-    if (!target.dataset.action) return;
-
-    const domContext = {
-      url: location.href,
-      title: document.title,
-      kpiHints: Array.from(document.querySelectorAll("[data-testid], h1, h2"))
-        .slice(0, 5)
-        .map((item) => item.textContent?.trim())
-        .filter(Boolean)
-    };
-
-    await chrome.storage.local.set({ domContext });
-    await chrome.runtime.sendMessage({ type: "OPEN_SIDE_PANEL" }).catch(() => undefined);
-    alert(`Da ghi nhan yeu cau: ${target.dataset.action}`);
+  button.addEventListener("click", () => {
+    void chrome.runtime.sendMessage({ type: "OPEN_SIDE_PANEL" });
   });
 
-  document.body.appendChild(container);
+  document.body.appendChild(button);
 }
 
 if (location.hostname.includes("seller.wildberries.ru")) {
-  mount();
+  void syncDomContext();
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", mountCopilotButton, { once: true });
+  } else {
+    mountCopilotButton();
+  }
 }

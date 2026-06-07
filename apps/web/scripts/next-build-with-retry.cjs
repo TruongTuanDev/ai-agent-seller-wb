@@ -7,7 +7,20 @@ const nextDir = join(appDir, ".next");
 const maxAttempts = 3;
 
 function clean() {
-  rmSync(nextDir, { recursive: true, force: true });
+  let lastError;
+  for (let attempt = 1; attempt <= 5; attempt += 1) {
+    try {
+      rmSync(nextDir, { recursive: true, force: true, maxRetries: 5, retryDelay: 150 });
+      return;
+    } catch (error) {
+      lastError = error;
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 150);
+    }
+  }
+
+  if (lastError) {
+    throw lastError;
+  }
 }
 
 for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {

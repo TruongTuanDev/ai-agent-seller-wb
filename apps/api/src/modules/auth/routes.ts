@@ -1,9 +1,10 @@
 import bcrypt from "bcryptjs";
 import { Router } from "express";
 import { UserRole } from "@prisma/client";
-import { loginSchema, registerSchema } from "@wb/shared";
+import { loginSchema, registerSchema, updateCopilotModeSchema } from "@wb/shared";
 import { prisma } from "../../database/prisma";
 import { requireAuth, signToken, type AuthenticatedRequest } from "../../common/auth";
+import { getUsageSnapshot } from "../../common/usage";
 
 export const authRouter = Router();
 
@@ -20,7 +21,8 @@ authRouter.post("/register", async (req, res) => {
       email: parsed.data.email,
       passwordHash,
       name: parsed.data.name,
-      role: UserRole.SELLER
+      role: UserRole.SELLER,
+      usageResetAt: new Date()
     }
   });
 
@@ -47,5 +49,27 @@ authRouter.post("/login", async (req, res) => {
 
 authRouter.get("/me", requireAuth, async (req: AuthenticatedRequest, res) => {
   const user = await prisma.user.findUnique({ where: { id: req.user!.id } });
-  return res.json({ user });
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  const usage = await getUsageSnapshot(user.id);
+  return res.json({ user, usage });
+});
+
+authRouter.post("/settings/copilot-mode", requireAuth, async (req: AuthenticatedRequest, res) => {
+  const parsed = updateCopilotModeSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json(parsed.error.flatten());
+  }
+
+  const user = await prisma.user.update({
+    where: { id: req.user!.id },
+    data: {
+      copilotMode: parsed.data.mode
+    }
+  });
+
+  const usage = await getUsageSnapshot(user.id);
+  return res.json({ user, usage });
 });

@@ -140,3 +140,179 @@ export interface WbConnectionResult {
   capabilities: string[];
   errors: string[];
 }
+
+export type WbExecutionMode = "mock" | "dry_run" | "real_write";
+
+export type UserPlan = "FREE" | "PRO" | "AGENCY";
+
+export type SellerOperatingMode = "ASSISTANT" | "OPERATOR" | "MANAGER";
+
+export type CopilotIntent =
+  | "SHOP_HEALTH"
+  | "SALES_DROP_ANALYSIS"
+  | "REVIEW_MANAGEMENT"
+  | "PRODUCT_DOCTOR"
+  | "INVENTORY_RISK"
+  | "SEO_OPTIMIZATION"
+  | "COMPETITOR_WATCH"
+  | "ACTION_EXECUTION"
+  | "USAGE_BILLING"
+  | "GENERAL_HELP";
+
+export type CopilotToolName =
+  | "getShopHealth"
+  | "getProducts"
+  | "getProductProblems"
+  | "getInventoryWarnings"
+  | "getFeedbacks"
+  | "getLatestReport"
+  | "createReviewDraft"
+  | "runProductDoctor"
+  | "getUsageInfo";
+
+export interface CopilotActionPlanStep {
+  step: number;
+  tool: CopilotToolName;
+  reason: string;
+}
+
+export interface CopilotActionPlanner {
+  intent: CopilotIntent;
+  confidence: number;
+  requiredTools: CopilotToolName[];
+  plan: CopilotActionPlanStep[];
+}
+
+export interface CopilotBusinessInsight {
+  title: string;
+  severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+  evidence: string[];
+  businessImpact: string;
+  recommendedAction: string;
+  relatedSku?: string;
+  estimatedLossRub?: number;
+}
+
+export type CopilotCard =
+  | {
+      type: "health";
+      title: string;
+      healthScore: number;
+      summary: string;
+      metadata?: Record<string, unknown>;
+    }
+  | {
+      type: "insight";
+      title: string;
+      summary: string;
+      severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+      ctaTitle?: string;
+      metadata?: Record<string, unknown>;
+    }
+  | {
+      type: "product";
+      title: string;
+      productId: string;
+      sku: string;
+      summary: string;
+      metadata?: Record<string, unknown>;
+    }
+  | {
+      type: "review";
+      title: string;
+      feedbackId: string;
+      summary: string;
+      metadata?: Record<string, unknown>;
+    }
+  | {
+      type: "review";
+      title: string;
+      feedbackId: string;
+      summary: string;
+      metadata?: Record<string, unknown>;
+    }
+  | {
+      type: "inventory";
+      title: string;
+      sku: string;
+      summary: string;
+      metadata?: Record<string, unknown>;
+    }
+  | {
+      type: "productRisk";
+      title: string;
+      productId: string;
+      sku: string;
+      summary: string;
+      severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+      metadata?: Record<string, unknown>;
+    }
+  | {
+      type: "reviewQueue";
+      title: string;
+      summary: string;
+      pendingCount: number;
+      negativeCount: number;
+      metadata?: Record<string, unknown>;
+    }
+  | {
+      type: "inventoryRisk";
+      title: string;
+      summary: string;
+      affectedSkus: string[];
+      metadata?: Record<string, unknown>;
+    }
+  | {
+      type: "actionPlan";
+      title: string;
+      summary: string;
+      steps: CopilotActionPlanStep[];
+      metadata?: Record<string, unknown>;
+    }
+  | {
+      type: "usageLimit";
+      title: string;
+      summary: string;
+      planName: UserPlan;
+      metadata?: Record<string, unknown>;
+    };
+
+export interface CopilotSuggestedAction {
+  type:
+    | "OPEN_REVIEW_QUEUE"
+    | "RUN_PRODUCT_DOCTOR"
+    | "CREATE_REVIEW_DRAFTS"
+    | "VIEW_INVENTORY_RISK"
+    | "OPEN_ACTION_QUEUE"
+    | "RUN_HEALTH_REPORT"
+    | "GENERATE_HEALTH_REPORT";
+  title: string;
+  reason: string;
+  payload: Record<string, unknown>;
+  requiresApproval: boolean;
+}
+
+export interface CopilotConversationSummary {
+  id: string;
+  shopId: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CopilotConversationMessage {
+  id: string;
+  role: "user" | "assistant" | "tool";
+  content: string;
+  metadataJson?: Record<string, unknown> | null;
+  createdAt: string;
+}
+
+export interface CopilotChatResponse {
+  conversationId: string;
+  answer: string;
+  suggestedActions: CopilotSuggestedAction[];
+  cards: CopilotCard[];
+  intent?: CopilotIntent;
+  planner?: CopilotActionPlanner;
+}

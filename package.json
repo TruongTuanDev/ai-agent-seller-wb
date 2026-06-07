@@ -8,7 +8,8 @@
     "build": "pnpm -r build",
     "lint": "pnpm -r lint",
     "db:migrate": "prisma migrate deploy",
-    "db:seed": "prisma db seed"
+    "db:seed": "prisma db seed",
+    "copilot:smoke": "tsx scripts/copilot-smoke.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.8.2",

@@ -1,9 +1,10 @@
 import { TelegramStatus } from "@prisma/client";
 import { Router } from "express";
-import { telegramConnectSchema } from "@wb/shared";
+import { telegramConnectSchema, telegramCopilotCommandSchema } from "@wb/shared";
 import { prisma } from "../../database/prisma";
 import { requireAuth, type AuthenticatedRequest } from "../../common/auth";
 import { createAuditLog } from "../../common/audit";
+import { runTelegramCopilotCommand } from "../copilot/service";
 import { createDailyHealthSummary, getTelegramMode, sendDailyHealthSummary, sendTelegramMessage } from "./service";
 
 export const telegramRouter = Router();
@@ -124,6 +125,31 @@ telegramRouter.post("/:shopId/daily-summary", async (req: AuthenticatedRequest, 
     return res.status(400).json({
       sent: false,
       message: error instanceof Error ? error.message : "Khong the gui daily summary."
+    });
+  }
+});
+
+telegramRouter.post("/:shopId/copilot-command", async (req: AuthenticatedRequest, res) => {
+  const parsed = telegramCopilotCommandSchema.safeParse({
+    shopId: String(req.params.shopId),
+    command: req.body?.command
+  });
+
+  if (!parsed.success) {
+    return res.status(400).json(parsed.error.flatten());
+  }
+
+  try {
+    const result = await runTelegramCopilotCommand({
+      shopId: parsed.data.shopId,
+      userId: req.user!.id,
+      command: parsed.data.command
+    });
+
+    return res.json(result);
+  } catch (error) {
+    return res.status(400).json({
+      message: error instanceof Error ? error.message : "Khong the chay Telegram Copilot command."
     });
   }
 });

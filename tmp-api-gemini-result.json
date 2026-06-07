@@ -1,6 +1,0 @@
-{
-    "wbMode":  "real",
-    "wbOk":  true,
-    "wbScopes":  "general,products,stocks,feedbacks",
-    "wbErrors":  "analytics: Invalid request body"
-}

@@ -12,6 +12,9 @@ export const env = {
   aiProvider: process.env.AI_PROVIDER ?? "mock",
   geminiApiKey: process.env.GEMINI_API_KEY ?? "",
   geminiModel: process.env.GEMINI_MODEL ?? "gemini-2.5-flash",
+  telegramBotToken: process.env.TELEGRAM_BOT_TOKEN ?? "",
+  telegramDailyAlertEnabled: process.env.TELEGRAM_DAILY_ALERT_ENABLED === "true",
+  telegramDailyAlertHour: Number(process.env.TELEGRAM_DAILY_ALERT_HOUR ?? 9),
   enableRealWbApi: process.env.ENABLE_REAL_WB_API === "true",
   wbApiBaseUrl: process.env.WB_API_BASE_URL ?? "https://common-api.wildberries.ru"
 };

@@ -26,3 +26,15 @@ export const approveDangerousActionSchema = z.object({
 export const testWbTokenSchema = z.object({
   token: z.string().min(6)
 });
+
+export const reviewDraftSchema = z.object({
+  feedbackId: z.string().min(1).optional(),
+  tone: z.enum(["polite", "friendly", "professional"]).default("professional"),
+  allowRefundPromise: z.boolean().default(false)
+});
+
+export const telegramConnectSchema = z.object({
+  chatId: z.string().min(2),
+  dailyAlertsEnabled: z.boolean().default(true),
+  alertHour: z.number().int().min(0).max(23).default(9)
+});

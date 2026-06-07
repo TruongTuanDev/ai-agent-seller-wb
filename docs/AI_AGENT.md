@@ -1,70 +1,82 @@
 # AI AGENT
 
-## Input JSON
-
-```json
-{
-  "shop": {},
-  "kpis": {},
-  "products": [],
-  "feedbacks": [],
-  "analytics": {},
-  "inventory": {},
-  "competitors": []
-}
-```
-
-## Output JSON
-
-```json
-{
-  "healthScore": 0,
-  "summary": "",
-  "risks": [],
-  "opportunities": [],
-  "recommendedActions": [
-    {
-      "type": "REPLY_REVIEW | UPDATE_PRICE | UPDATE_STOCK | SEO_REWRITE | TELEGRAM_ALERT",
-      "title": "",
-      "reason": "",
-      "confidence": 0,
-      "requiresApproval": true,
-      "payload": {}
-    }
-  ]
-}
-```
-
-## Rules
-
-- AI phai tra ve JSON hop le, khong tra ve text tu do.
-- Phan tich cho seller bang tieng Viet.
-- Neu tao reply cho khach thi viet bang tieng Nga.
-- Khong bia so lieu.
-- Neu thieu du lieu thi phai ghi ro `missingData`.
-
-## Provider
+## Providers
 
 - `MockAiProvider`
   - Luon san sang cho demo offline
+  - Dung heuristic tren products, feedbacks, snapshots
 - `GeminiProvider`
   - Bat bang `AI_PROVIDER=gemini`
   - Doc key tu `GEMINI_API_KEY`
-  - Neu thieu key thi fallback ve mock
+  - Neu thieu key thi fallback mock
+
+## Flow da noi
+
+- `generateShopHealthReport()`
+- `generateReviewReply()`
+- `generateProductDoctor()`
+
+## Shop Health Report schema
+
+```ts
+{
+  healthScore: number;
+  executiveSummary: string;
+  kpiSummary: {
+    revenueTrend: string;
+    orderTrend: string;
+    conversionTrend: string;
+    reviewRisk: string;
+    inventoryRisk: string;
+  };
+  criticalIssues: Array<{
+    title: string;
+    severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+    evidence: string;
+    recommendation: string;
+    relatedSku?: string;
+  }>;
+  growthOpportunities: Array<{
+    title: string;
+    expectedImpact: string;
+    action: string;
+  }>;
+  recommendedActions: Array<ActionRecommendation>;
+  missingData: string[];
+}
+```
+
+## Review Reply rules
+
+- Output bang tieng Nga
+- Tone cho phep: `polite`, `friendly`, `professional`
+- Review tieu cuc: xin loi, de nghi ho tro
+- Review tich cuc: cam on ngan gon
+- Khong hua hoan tien neu seller chua cho phep
+
+## Product Doctor rules
+
+- Chan doan bang tieng Viet
+- SEO draft bang tieng Nga:
+  - `seoTitleRu`
+  - `seoDescriptionRu`
+  - `seoBulletsRu`
+  - `keywordsRu`
+- Canh bao size, mau, chat lieu neu review co dau hieu
 
 ## Gemini implementation
 
-- Goi `models.generateContent`
+- Goi `generateContent`
 - Bat `responseMimeType=application/json`
 - Truyen `responseSchema`
-- Validate lai bang Zod o backend
-- Neu Gemini tra ve text loi hoac JSON sai schema:
-  - backend log loi
-  - khong log API key
-  - tra loi tieng Viet de debug de hon
+- Validate lai bang Zod sau khi parse
+- Neu Gemini tra text loi:
+  - backend parse an toan lai JSON neu co
+  - neu van sai schema thi tra loi debug de hieu
+  - log loi nhung khong log API key
 
 ## Ngon ngu output
 
-- `generateShopHealthReport()`: tieng Viet
-- `generateReviewReply()`: tieng Nga
-- `generateProductDoctor()`: chan doan tieng Viet + de xuat SEO tieng Nga (`seoTitleRu`, `seoBulletsRu`)
+- Health report: tieng Viet
+- Review reply: tieng Nga
+- Product Doctor: chan doan tieng Viet, SEO draft tieng Nga

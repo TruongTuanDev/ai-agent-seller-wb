@@ -12,7 +12,7 @@ export type DangerousActionType =
 
 export type ActionType = SafeActionType | DangerousActionType;
 
-export interface RecommendedAction {
+export interface ActionRecommendation {
   type: ActionType;
   title: string;
   reason: string;
@@ -20,6 +20,8 @@ export interface RecommendedAction {
   requiresApproval: boolean;
   payload: Record<string, unknown>;
 }
+
+export type RecommendedAction = ActionRecommendation;
 
 export interface ShopHealthInput {
   shop: Record<string, unknown>;
@@ -29,15 +31,33 @@ export interface ShopHealthInput {
   analytics: Record<string, unknown>;
   inventory: Record<string, unknown>;
   competitors: Record<string, unknown>[];
+  productProblems?: ProductProblem[];
 }
 
 export interface ShopHealthReport {
   healthScore: number;
-  summary: string;
-  risks: string[];
-  opportunities: string[];
-  recommendedActions: RecommendedAction[];
-  missingData?: string[];
+  executiveSummary: string;
+  kpiSummary: {
+    revenueTrend: string;
+    orderTrend: string;
+    conversionTrend: string;
+    reviewRisk: string;
+    inventoryRisk: string;
+  };
+  criticalIssues: Array<{
+    title: string;
+    severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+    evidence: string;
+    recommendation: string;
+    relatedSku?: string;
+  }>;
+  growthOpportunities: Array<{
+    title: string;
+    expectedImpact: string;
+    action: string;
+  }>;
+  recommendedActions: ActionRecommendation[];
+  missingData: string[];
 }
 
 export interface ReviewReplyInput {
@@ -45,12 +65,15 @@ export interface ReviewReplyInput {
   reviewText: string;
   rating: number;
   productTitle: string;
+  tone?: "polite" | "friendly" | "professional";
+  allowRefundPromise?: boolean;
 }
 
 export interface ReviewReplyOutput {
   reply: string;
-  tone: string;
-  missingData?: string[];
+  tone: "polite" | "friendly" | "professional";
+  detectedSentiment: "positive" | "neutral" | "negative";
+  missingData: string[];
 }
 
 export interface ProductDoctorInput {
@@ -60,15 +83,48 @@ export interface ProductDoctorInput {
   price?: number;
   stock?: number;
   rating?: number;
+  attributes?: Record<string, unknown>;
+  reviewSnippets?: string[];
 }
 
 export interface ProductDoctorOutput {
   seoScore: number;
+  imageScore: number;
+  titleScore: number;
+  descriptionScore: number;
+  attributeCompleteness: number;
+  reviewRisk: string;
+  returnRisk: string;
   diagnosis: string[];
   suggestions: string[];
-  seoTitleRu?: string;
-  seoBulletsRu?: string[];
-  missingData?: string[];
+  seoTitleRu: string;
+  seoDescriptionRu: string;
+  seoBulletsRu: string[];
+  keywordsRu: string[];
+  warnings: string[];
+  missingData: string[];
+}
+
+export interface ProductProblem {
+  productId: string;
+  wbNmId: string;
+  title: string;
+  severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+  reasons: string[];
+  metrics: {
+    rating: number;
+    reviewCount: number;
+    stock: number;
+    price: number;
+    unansweredReviews: number;
+  };
+}
+
+export interface TelegramAlertSummary {
+  healthScore: number;
+  criticalLines: string[];
+  suggestedLines: string[];
+  message: string;
 }
 
 export interface WbConnectionResult {

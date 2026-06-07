@@ -23,13 +23,17 @@ export async function persistProducts(shopId: string, products: WbProduct[], sto
       vendorCode: product.vendorCode || `WB-${product.nmId}`,
       barcode: product.chrtIds?.[0] ? String(product.chrtIds[0]) : `barcode-${product.nmId}-${index}`,
       title: product.title,
+      description: product.description,
       brand: product.brand,
       category: product.category,
       price: product.price,
       discount: product.discount,
       stock: stockByNmId.get(product.nmId) ?? product.stock,
       rating: product.rating ?? 0,
-      reviewCount: product.reviewCount ?? 0
+      reviewCount: product.reviewCount ?? 0,
+      attributesJson: product.attributes
+        ? (product.attributes as Prisma.InputJsonValue)
+        : Prisma.JsonNull
     }))
   });
 

@@ -83,23 +83,25 @@ model Shop {
 }
 
 model Product {
-  id          String   @id @default(cuid())
-  shopId      String
-  wbNmId      String
-  vendorCode  String
-  barcode     String
-  title       String
-  brand       String
-  category    String
-  price       Float
-  discount    Float
-  stock       Int
-  rating      Float
-  reviewCount Int
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  shop        Shop     @relation(fields: [shopId], references: [id])
-  feedbacks   Feedback[]
+  id             String   @id @default(cuid())
+  shopId         String
+  wbNmId         String
+  vendorCode     String
+  barcode        String
+  title          String
+  description    String?
+  brand          String
+  category       String
+  price          Float
+  discount       Float
+  stock          Int
+  rating         Float
+  reviewCount    Int
+  attributesJson Json?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  shop           Shop     @relation(fields: [shopId], references: [id])
+  feedbacks      Feedback[]
 }
 
 model Feedback {
@@ -138,6 +140,7 @@ model AiReport {
   risksJson         Json
   opportunitiesJson Json
   actionsJson       Json
+  detailsJson       Json?
   createdAt         DateTime @default(now())
   shop              Shop     @relation(fields: [shopId], references: [id])
   createdActions    Action[] @relation("CreatedActions")
@@ -175,10 +178,14 @@ model AuditLog {
 }
 
 model TelegramIntegration {
-  id        String         @id @default(cuid())
-  shopId     String
-  chatId     String
-  status     TelegramStatus @default(DISCONNECTED)
-  createdAt  DateTime       @default(now())
-  shop       Shop           @relation(fields: [shopId], references: [id])
+  id                 String         @id @default(cuid())
+  shopId             String
+  chatId             String
+  status             TelegramStatus @default(DISCONNECTED)
+  dailyAlertsEnabled Boolean        @default(true)
+  alertHour          Int            @default(9)
+  lastAlertSentAt    DateTime?
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  shop               Shop           @relation(fields: [shopId], references: [id])
 }

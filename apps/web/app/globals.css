@@ -9,11 +9,87 @@
 body {
   @apply bg-stone-950 text-stone-100;
   background-image:
-    radial-gradient(circle at top left, rgba(217, 119, 6, 0.22), transparent 30%),
-    radial-gradient(circle at top right, rgba(29, 78, 216, 0.18), transparent 34%),
-    linear-gradient(180deg, #0c111d 0%, #111827 100%);
+    radial-gradient(circle at top left, rgba(249, 115, 22, 0.2), transparent 28%),
+    radial-gradient(circle at top right, rgba(14, 165, 233, 0.16), transparent 32%),
+    linear-gradient(180deg, #07111f 0%, #101827 100%);
 }
 
-.card {
-  @apply rounded-3xl border border-white/10 bg-white/5 backdrop-blur;
+.panel {
+  @apply rounded-[28px] border border-white/10 bg-slate-950/70 backdrop-blur-xl shadow-[0_24px_80px_rgba(2,6,23,0.35)];
+}
+
+.soft-card {
+  @apply rounded-3xl border border-white/10 bg-white/5 p-4;
+}
+
+.metric-card {
+  @apply rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03))] p-4;
+}
+
+.eyebrow {
+  @apply text-xs uppercase tracking-[0.26em] text-orange-300;
+}
+
+.input {
+  @apply w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-orange-300/50;
+}
+
+.button-primary {
+  @apply rounded-2xl bg-orange-400 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-orange-300;
+}
+
+.button-secondary {
+  @apply rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white transition hover:bg-white/10;
+}
+
+.button-link {
+  @apply rounded-2xl bg-sky-500/20 px-4 py-3 text-sm font-medium text-sky-100 transition hover:bg-sky-500/30;
+}
+
+.nav-item {
+  @apply rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-left text-sm text-slate-200 transition hover:bg-white/10;
+}
+
+.nav-item-active {
+  @apply border-orange-300/40 bg-orange-400/15 text-white;
+}
+
+.shop-chip {
+  @apply flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-3 py-3 text-left text-sm text-slate-200 transition hover:bg-white/10;
+}
+
+.shop-chip-active {
+  @apply border-sky-300/40 bg-sky-500/15;
+}
+
+.toast {
+  @apply rounded-2xl border border-orange-300/20 bg-orange-400/10 px-4 py-3 text-sm text-orange-50;
+}
+
+.chip {
+  @apply rounded-full border border-white/10 px-3 py-1 text-xs text-slate-200;
+}
+
+.health-ring {
+  @apply flex h-28 w-28 items-center justify-center rounded-full border border-orange-300/30 bg-orange-400/10 text-4xl font-semibold text-orange-200;
+}
+
+.severity {
+  @apply rounded-full px-3 py-1 text-xs font-medium;
+}
+
+.severity-low {
+  @apply bg-slate-700/60 text-slate-100;
+}
+
+.severity-medium {
+  @apply bg-amber-400/15 text-amber-100;
+}
+
+.severity-high {
+  @apply bg-orange-400/15 text-orange-100;
+}
+
+.severity-critical {
+  @apply bg-rose-500/20 text-rose-100;
 }

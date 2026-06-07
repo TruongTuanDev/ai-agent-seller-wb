@@ -129,7 +129,8 @@ shopsRouter.get("/", async (req: AuthenticatedRequest, res) => {
     where: { userId: req.user!.id },
     include: {
       products: true,
-      aiReports: { orderBy: { createdAt: "desc" }, take: 1 }
+      aiReports: { orderBy: { createdAt: "desc" }, take: 1 },
+      telegramIntegrations: { orderBy: { createdAt: "desc" }, take: 1 }
     }
   });
 
@@ -142,9 +143,11 @@ shopsRouter.get("/:id", async (req: AuthenticatedRequest, res) => {
     where: { id: shopId, userId: req.user!.id },
     include: {
       products: true,
-      feedbacks: { orderBy: { createdAt: "desc" }, take: 10 },
+      feedbacks: { orderBy: { createdAt: "desc" }, take: 50, include: { product: true } },
       aiReports: { orderBy: { createdAt: "desc" }, take: 5 },
-      actions: { orderBy: { createdAt: "desc" }, take: 20 }
+      actions: { orderBy: { createdAt: "desc" }, take: 50 },
+      snapshots: { orderBy: { date: "desc" }, take: 7 },
+      telegramIntegrations: { orderBy: { createdAt: "desc" }, take: 1 }
     }
   });
 

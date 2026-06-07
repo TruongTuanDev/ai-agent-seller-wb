@@ -22,6 +22,7 @@ export interface WbProduct {
   nmId: string;
   vendorCode: string;
   title: string;
+  description?: string;
   brand: string;
   category: string;
   price: number;
@@ -30,6 +31,7 @@ export interface WbProduct {
   rating?: number;
   reviewCount?: number;
   chrtIds?: number[];
+  attributes?: Record<string, unknown>;
 }
 
 export interface WbStock {

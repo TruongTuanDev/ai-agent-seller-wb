@@ -40,7 +40,7 @@ async function main() {
       name: "Demo Wildberries Shop",
       wbSellerId: "wb-seller-demo",
       encryptedWbToken: encryptedDemoToken,
-      tokenScopes: ["content", "analytics", "feedbacks"],
+      tokenScopes: ["general", "products", "feedbacks", "analytics"],
       status: ShopStatus.ACTIVE
     }
   });
@@ -52,61 +52,116 @@ async function main() {
   await prisma.aiReport.deleteMany({ where: { shopId: shop.id } });
   await prisma.telegramIntegration.deleteMany({ where: { shopId: shop.id } });
 
+  const productSeeds = [
+    {
+      wbNmId: "100001",
+      vendorCode: "WB-DEMO-001",
+      barcode: "460000000001",
+      title: "Men basic cotton T-shirt",
+      description: "Basic cotton T-shirt for everyday wear. Soft fabric, regular fit and easy styling for casual outfits.",
+      brand: "Demo Brand",
+      category: "Fashion",
+      price: 990,
+      discount: 7,
+      stock: 8,
+      rating: 3.9,
+      reviewCount: 21,
+      attributesJson: { material: "cotton", fit: "regular", color: "black" }
+    },
+    {
+      wbNmId: "100002",
+      vendorCode: "WB-DEMO-002",
+      barcode: "460000000002",
+      title: "Women lounge pants relaxed fit",
+      description: "Relaxed fit lounge pants with soft feel and simple silhouette for daily comfort.",
+      brand: "Demo Brand",
+      category: "Fashion",
+      price: 1490,
+      discount: 9,
+      stock: 26,
+      rating: 4.6,
+      reviewCount: 34,
+      attributesJson: { material: "polyester", fit: "relaxed", color: "beige" }
+    },
+    {
+      wbNmId: "100003",
+      vendorCode: "WB-DEMO-003",
+      barcode: "460000000003",
+      title: "Kitchen storage organizer box",
+      description: "Compact organizer box for pantry and kitchen shelves with clear visibility and easy stackability.",
+      brand: "Demo Home",
+      category: "Home",
+      price: 790,
+      discount: 4,
+      stock: 5,
+      rating: 4.1,
+      reviewCount: 17,
+      attributesJson: { material: "plastic", color: "transparent", size: "M" }
+    },
+    {
+      wbNmId: "100004",
+      vendorCode: "WB-DEMO-004",
+      barcode: "460000000004",
+      title: "Lightweight hoodie everyday style",
+      description: "Lightweight hoodie for daily use with soft inner feel and neutral design.",
+      brand: "Demo Brand",
+      category: "Fashion",
+      price: 1890,
+      discount: 12,
+      stock: 14,
+      rating: 3.8,
+      reviewCount: 28,
+      attributesJson: { material: "blend", color: "gray", season: "all-season" }
+    },
+    {
+      wbNmId: "100005",
+      vendorCode: "WB-DEMO-005",
+      barcode: "460000000005",
+      title: "Minimal desk organizer tray",
+      description: "Simple tray for desk items, stationery and accessories. Helps keep workspace cleaner.",
+      brand: "Demo Home",
+      category: "Home",
+      price: 690,
+      discount: 3,
+      stock: 32,
+      rating: 4.7,
+      reviewCount: 12,
+      attributesJson: { material: "plastic", color: "white", size: "compact" }
+    }
+  ];
+
   const products = await Promise.all(
-    Array.from({ length: 5 }).map((_, index) =>
+    productSeeds.map((product) =>
       prisma.product.create({
         data: {
           shopId: shop.id,
-          wbNmId: `10000${index + 1}`,
-          vendorCode: `WB-DEMO-00${index + 1}`,
-          barcode: `46000000000${index + 1}`,
-          title: `Товар демо ${index + 1}`,
-          brand: "Demo Brand",
-          category: index % 2 === 0 ? "Fashion" : "Home",
-          price: 900 + index * 250,
-          discount: 5 + index,
-          stock: 10 + index * 7,
-          rating: 4.1 - index * 0.1,
-          reviewCount: 12 + index * 3
+          ...product
         }
       })
     )
   );
 
-  const feedbackTexts = [
-    "Качество хорошее, но размер маломерит.",
-    "Доставка быстрая, упаковка аккуратная.",
-    "Цвет немного отличается от фото.",
-    "Спасибо, товар понравился.",
-    "Хотелось бы лучше описание состава.",
-    "Повторно закажу, все отлично.",
-    "Есть небольшой запах после распаковки.",
-    "Материал приятный, рекомендую.",
-    "Не подошел фасон, но качество нормальное.",
-    "За такую цену очень достойно.",
-    "Размерная сетка могла бы быть точнее.",
-    "Порадовало качество швов.",
-    "Возврат не делала, оставила себе.",
-    "Продавец быстро ответил на вопрос.",
-    "На фото выглядит чуть плотнее.",
-    "Заказ пришел вовремя.",
-    "Все соответствует описанию.",
-    "Ткань тоньше, чем ожидалось.",
-    "В целом довольна покупкой.",
-    "Хороший вариант на каждый день."
+  const feedbackSeeds = [
+    { productIndex: 0, rating: 3, text: "Size runs a bit small and the fabric feels thinner than expected.", status: FeedbackStatus.NEW },
+    { productIndex: 0, rating: 2, text: "Color looks darker than the listing photo.", status: FeedbackStatus.NEW },
+    { productIndex: 1, rating: 5, text: "Very comfortable, good quality and fast delivery.", status: FeedbackStatus.REPLIED },
+    { productIndex: 2, rating: 4, text: "Useful organizer, but I wish it came in a larger size.", status: FeedbackStatus.NEW },
+    { productIndex: 3, rating: 3, text: "Good style, but the size chart should be clearer.", status: FeedbackStatus.DRAFTED, aiReplyDraft: "Здравствуйте! Спасибо за отзыв. Нам жаль, что размерная сетка оказалась недостаточно понятной. Мы уточним описание и будем рады помочь вам в чате магазина." },
+    { productIndex: 3, rating: 4, text: "Nice hoodie overall, but material could be described better.", status: FeedbackStatus.NEW },
+    { productIndex: 4, rating: 5, text: "Clean design, very practical for desk accessories.", status: FeedbackStatus.REPLIED }
   ];
 
-  await Promise.all(
-    feedbackTexts.map((text, index) =>
+  const createdFeedbacks = await Promise.all(
+    feedbackSeeds.map((feedback, index) =>
       prisma.feedback.create({
         data: {
           shopId: shop.id,
           wbFeedbackId: `fb-demo-${index + 1}`,
-          productId: products[index % products.length].id,
-          rating: index % 5 === 0 ? 3 : 4 + (index % 2),
-          text,
-          aiReplyDraft: index % 3 === 0 ? "Спасибо за отзыв! Мы учтем ваши замечания." : null,
-          status: index % 3 === 0 ? FeedbackStatus.DRAFTED : FeedbackStatus.NEW
+          productId: products[feedback.productIndex].id,
+          rating: feedback.rating,
+          text: feedback.text,
+          status: feedback.status,
+          aiReplyDraft: feedback.aiReplyDraft ?? null
         }
       })
     )
@@ -117,14 +172,15 @@ async function main() {
       data: {
         shopId: shop.id,
         date: new Date(Date.now() - day * 24 * 60 * 60 * 1000),
-        revenue: 150000 + day * 5000,
-        ordersCount: 45 + day,
-        addToCartConversion: 12.5 + day * 0.2,
-        cartToOrderConversion: 31.1 - day * 0.3,
-        buyoutPercent: 83.5 - day * 0.4,
+        revenue: 145000 + day * 4200,
+        ordersCount: 38 + day,
+        addToCartConversion: 11.8 + day * 0.25,
+        cartToOrderConversion: 27.4 - day * 0.2,
+        buyoutPercent: 81.5 - day * 0.35,
         rawJson: {
           source: "seed",
-          dayOffset: day
+          dayOffset: day,
+          analyticsWarning: day === 0 ? "Analytics se fallback mock neu WB tra 400." : null
         }
       }
     });
@@ -134,22 +190,107 @@ async function main() {
     data: {
       shopId: shop.id,
       healthScore: 78,
-      summary: "Shop dang van hanh on, nhung co canh bao ve ton kho va mot so review 3 sao can xu ly nhanh.",
-      risksJson: ["Ton kho cua 2 SKU dang giam nhanh", "Ti le review 3 sao tang trong 7 ngay"],
-      opportunitiesJson: ["Tang chat luong mo ta san pham", "Tra loi review bang tieng Nga nhanh hon"],
+      summary: "Shop dang van hanh on, nhung can uu tien ton kho thap, review ton dong va toi uu SEO cho mot so SKU.",
+      risksJson: [
+        {
+          title: "SKU 100003 ton kho thap",
+          severity: "HIGH",
+          evidence: "Ton kho con 5 san pham",
+          recommendation: "Bo sung kho trong 48 gio",
+          relatedSku: "100003"
+        }
+      ],
+      opportunitiesJson: [
+        {
+          title: "Bat review queue",
+          expectedImpact: "Tang trust va review handling speed",
+          action: "Tao AI draft tieng Nga cho review moi"
+        }
+      ],
       actionsJson: [
-        { type: "CREATE_REVIEW_DRAFT", title: "Tao draft cho review 3 sao" },
-        { type: "UPDATE_STOCK", title: "Cap nhat ton kho SKU 100003" }
-      ]
+        {
+          type: "CREATE_REVIEW_DRAFT",
+          title: "Tao draft cho review ton dong",
+          reason: "Rut ngan thoi gian phan hoi review",
+          confidence: 0.87,
+          requiresApproval: true,
+          payload: {}
+        }
+      ],
+      detailsJson: {
+        healthScore: 78,
+        executiveSummary: "Shop can xu ly ngay SKU ton kho thap, review chua tra loi va mot so listing co title/mo ta chua toi uu.",
+        kpiSummary: {
+          revenueTrend: "Doanh thu 7 ngay gan day van on dinh.",
+          orderTrend: "So don dang tang nhe theo snapshot seed.",
+          conversionTrend: "Cart-to-order giam nhe so voi snapshot truoc.",
+          reviewRisk: "Con review 2-3 sao va review chua tra loi.",
+          inventoryRisk: "SKU 100001 va 100003 sap can bo sung kho."
+        },
+        criticalIssues: [
+          {
+            title: "SKU 100003 ton kho thap",
+            severity: "HIGH",
+            evidence: "Ton kho con 5 san pham",
+            recommendation: "Bo sung kho trong 48 gio",
+            relatedSku: "100003"
+          },
+          {
+            title: "Review tieu cuc ton dong",
+            severity: "HIGH",
+            evidence: "Nhieu review nhac toi size va mau sac",
+            recommendation: "Tao draft va gui reply sau approval"
+          }
+        ],
+        growthOpportunities: [
+          {
+            title: "Toi uu SEO cho listing fashion",
+            expectedImpact: "Tang kha nang click va chuyen doi",
+            action: "Mo Product Doctor cho SKU 100001 va 100004"
+          },
+          {
+            title: "Bat Telegram alert",
+            expectedImpact: "Seller nhan canh bao luc dau ngay",
+            action: "Gui daily summary luc 9h"
+          }
+        ],
+        recommendedActions: [
+          {
+            type: "CREATE_REVIEW_DRAFT",
+            title: "Tao draft cho review ton dong",
+            reason: "Can giam backlog review",
+            confidence: 0.87,
+            requiresApproval: true,
+            payload: {}
+          },
+          {
+            type: "SEND_TELEGRAM_ALERT",
+            title: "Gui health summary buoi sang",
+            reason: "Seller nam duoc canh bao som",
+            confidence: 0.72,
+            requiresApproval: true,
+            payload: {}
+          }
+        ],
+        missingData: []
+      }
     }
   });
 
   const actionSeeds = [
-    { type: ActionType.CREATE_REVIEW_DRAFT, title: "Draft reply cho review can xu ly", payloadJson: { feedbackId: "fb-demo-1" } },
+    { type: ActionType.CREATE_REVIEW_DRAFT, title: "Draft reply cho review can xu ly", payloadJson: { feedbackId: createdFeedbacks[0].id } },
     { type: ActionType.CREATE_SEO_DRAFT, title: "Goi y SEO cho SKU 100001", payloadJson: { productNmId: "100001" } },
-    { type: ActionType.SEND_TELEGRAM_ALERT, title: "Canh bao ton kho thap", payloadJson: { message: "SKU 100003 ton kho con 10" } },
-    { type: ActionType.UPDATE_PRICE, title: "De xuat giam gia SKU 100004", payloadJson: { productNmId: "100004", newPrice: 1390 } },
-    { type: ActionType.REPLY_REVIEW, title: "Gui reply review Nga", payloadJson: { feedbackId: "fb-demo-3" } }
+    { type: ActionType.SEND_TELEGRAM_ALERT, title: "Gui daily health summary", payloadJson: { shopId: shop.id } },
+    { type: ActionType.UPDATE_STOCK, title: "De xuat bo sung ton kho SKU 100003", payloadJson: { productNmId: "100003", suggestedStock: 40 } },
+    {
+      type: ActionType.REPLY_REVIEW,
+      title: "Gui reply review cho hoodie",
+      payloadJson: {
+        feedbackId: createdFeedbacks[4].id,
+        wbFeedbackId: createdFeedbacks[4].wbFeedbackId,
+        draftReply: "Здравствуйте! Спасибо за отзыв. Мы уточним размерную сетку и описание материала, чтобы выбрать товар было проще."
+      }
+    }
   ];
 
   await Promise.all(
@@ -169,7 +310,9 @@ async function main() {
     data: {
       shopId: shop.id,
       chatId: "@wb_demo_alerts",
-      status: TelegramStatus.DISCONNECTED
+      status: TelegramStatus.CONNECTED,
+      dailyAlertsEnabled: true,
+      alertHour: 9
     }
   });
 }

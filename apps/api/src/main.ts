@@ -9,6 +9,8 @@ import { aiRouter } from "./modules/ai/routes";
 import { reportsRouter } from "./modules/reports/routes";
 import { actionsRouter } from "./modules/reviews/routes";
 import { telegramRouter } from "./modules/telegram/routes";
+import { productsRouter } from "./modules/products/routes";
+import { startTelegramDailyAlertJob } from "./modules/telegram/service";
 
 const app = express();
 
@@ -27,6 +29,9 @@ app.use("/ai", aiRouter);
 app.use("/reports", reportsRouter);
 app.use("/actions", actionsRouter);
 app.use("/telegram", telegramRouter);
+app.use("/products", productsRouter);
+
+startTelegramDailyAlertJob();
 
 app.listen(env.port, () => {
   console.log(`API listening on http://localhost:${env.port}`);

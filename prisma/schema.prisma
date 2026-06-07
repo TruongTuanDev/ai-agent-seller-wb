@@ -1,0 +1,184 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  SELLER
+}
+
+enum ShopStatus {
+  ACTIVE
+  DISCONNECTED
+  ERROR
+}
+
+enum FeedbackStatus {
+  NEW
+  DRAFTED
+  REPLIED
+}
+
+enum ActionType {
+  CREATE_REVIEW_DRAFT
+  CREATE_SEO_DRAFT
+  SEND_TELEGRAM_ALERT
+  UPDATE_PRICE
+  UPDATE_STOCK
+  REPLY_REVIEW
+  UPDATE_PRODUCT_CONTENT
+  UPDATE_AD_BID
+}
+
+enum ActionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  EXECUTED
+  NEEDS_CONFIRMATION
+  FAILED
+}
+
+enum TelegramStatus {
+  DISCONNECTED
+  CONNECTED
+}
+
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  passwordHash String
+  name         String
+  role         UserRole   @default(SELLER)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  shops        Shop[]
+  approvals    Action[]   @relation("ApprovedActions")
+  auditLogs    AuditLog[]
+}
+
+model Shop {
+  id                     String                @id @default(cuid())
+  userId                 String
+  name                   String
+  wbSellerId             String
+  encryptedWbToken       String
+  tokenScopes            String[]
+  status                 ShopStatus            @default(ACTIVE)
+  createdAt              DateTime              @default(now())
+  updatedAt              DateTime              @updatedAt
+  user                   User                  @relation(fields: [userId], references: [id])
+  products               Product[]
+  feedbacks              Feedback[]
+  snapshots              ShopSnapshot[]
+  aiReports              AiReport[]
+  actions                Action[]
+  auditLogs              AuditLog[]
+  telegramIntegrations   TelegramIntegration[]
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  shopId      String
+  wbNmId      String
+  vendorCode  String
+  barcode     String
+  title       String
+  brand       String
+  category    String
+  price       Float
+  discount    Float
+  stock       Int
+  rating      Float
+  reviewCount Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  shop        Shop     @relation(fields: [shopId], references: [id])
+  feedbacks   Feedback[]
+}
+
+model Feedback {
+  id            String         @id @default(cuid())
+  shopId        String
+  wbFeedbackId  String
+  productId     String?
+  rating        Int
+  text          String
+  aiReplyDraft  String?
+  status        FeedbackStatus @default(NEW)
+  createdAt     DateTime       @default(now())
+  shop          Shop           @relation(fields: [shopId], references: [id])
+  product       Product?       @relation(fields: [productId], references: [id])
+}
+
+model ShopSnapshot {
+  id                   String   @id @default(cuid())
+  shopId               String
+  date                 DateTime
+  revenue              Float
+  ordersCount          Int
+  addToCartConversion  Float
+  cartToOrderConversion Float
+  buyoutPercent        Float
+  rawJson              Json
+  createdAt            DateTime @default(now())
+  shop                 Shop     @relation(fields: [shopId], references: [id])
+}
+
+model AiReport {
+  id                String   @id @default(cuid())
+  shopId            String
+  healthScore       Int
+  summary           String
+  risksJson         Json
+  opportunitiesJson Json
+  actionsJson       Json
+  createdAt         DateTime @default(now())
+  shop              Shop     @relation(fields: [shopId], references: [id])
+  createdActions    Action[] @relation("CreatedActions")
+}
+
+model Action {
+  id                 String       @id @default(cuid())
+  shopId             String
+  type               ActionType
+  title              String
+  status             ActionStatus @default(PENDING)
+  payloadJson        Json
+  resultJson         Json?
+  createdByAiReportId String?
+  approvedByUserId   String?
+  approvedAt         DateTime?
+  executedAt         DateTime?
+  createdAt          DateTime     @default(now())
+  shop               Shop         @relation(fields: [shopId], references: [id])
+  createdByAiReport  AiReport?    @relation("CreatedActions", fields: [createdByAiReportId], references: [id])
+  approvedByUser     User?        @relation("ApprovedActions", fields: [approvedByUserId], references: [id])
+}
+
+model AuditLog {
+  id           String   @id @default(cuid())
+  userId       String?
+  shopId       String?
+  action       String
+  entityType   String
+  entityId     String
+  metadataJson Json
+  createdAt    DateTime @default(now())
+  user         User?    @relation(fields: [userId], references: [id])
+  shop         Shop?    @relation(fields: [shopId], references: [id])
+}
+
+model TelegramIntegration {
+  id        String         @id @default(cuid())
+  shopId     String
+  chatId     String
+  status     TelegramStatus @default(DISCONNECTED)
+  createdAt  DateTime       @default(now())
+  shop       Shop           @relation(fields: [shopId], references: [id])
+}

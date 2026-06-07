@@ -1,0 +1,11 @@
+node_modules
+.next
+dist
+.turbo
+.env
+coverage
+pnpm-lock.yaml
+apps/web/.next
+apps/extension/dist
+apps/api/dist
+prisma/dev.db

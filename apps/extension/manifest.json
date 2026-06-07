@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "WB Operator AI Agent",
+  "version": "0.1.0",
+  "description": "WB Copilot side panel for Wildberries sellers",
+  "permissions": ["storage", "sidePanel", "activeTab", "scripting"],
+  "host_permissions": ["https://seller.wildberries.ru/*", "http://localhost:4000/*"],
+  "background": {
+    "service_worker": "src/background/index.ts",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://seller.wildberries.ru/*"],
+      "js": ["src/content/index.ts"],
+      "run_at": "document_idle"
+    }
+  ]
+}

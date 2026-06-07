@@ -1,0 +1,76 @@
+=gemini : The term '=gemini' is not recognized as the name of a cmdlet, function, script file, or operable program. 
+Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:1
++ ='gemini'; ='true'; ='postgresql://postgres:postgres@localhost:5440/w ...
++ ~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (=gemini:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+=true : The term '=true' is not recognized as the name of a cmdlet, function, script file, or operable program. Check 
+the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:12
++ ='gemini'; ='true'; ='postgresql://postgres:postgres@localhost:5440/w ...
++            ~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (=true:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+=postgresql://postgres:postgres@localhost:5440/wb_operator : The term 
+'=postgresql://postgres:postgres@localhost:5440/wb_operator' is not recognized as the name of a cmdlet, function, 
+script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is 
+correct and try again.
+At line:1 char:21
++ ... '; ='true'; ='postgresql://postgres:postgres@localhost:5440/wb_operat ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (=postgresql://p...440/wb_operator:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+=change-me : The term '=change-me' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:83
++ ... //postgres:postgres@localhost:5440/wb_operator'; ='change-me'; ='32-b ...
++                                                      ~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (=change-me:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+=32-byte-demo-key-change-me-now!!! : The term '=32-byte-demo-key-change-me-now!!!' is not recognized as the name of a 
+cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was included, verify 
+that the path is correct and try again.
+At line:1 char:97
++ ... operator'; ='change-me'; ='32-byte-demo-key-change-me-now!!!'; ='gemi ...
++                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (=32-byte-demo-key-change-me-now!!!:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+=gemini-2.5-flash : The term '=gemini-2.5-flash' is not recognized as the name of a cmdlet, function, script file, or 
+operable program. Check the spelling of the name, or if a path was included, verify that the path is correct and try 
+again.
+At line:1 char:135
++ ... e'; ='32-byte-demo-key-change-me-now!!!'; ='gemini-2.5-flash'; pnpm - ...
++                                               ~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (=gemini-2.5-flash:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+node:events:502
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: listen EADDRINUSE: address already in use :::4000
+    at Server.setupListenHandle [as _listen2] (node:net:1908:16)
+    at listenInCluster (node:net:1965:12)
+    at Server.listen (node:net:2067:7)
+    at Function.listen (C:\Users\admin\ai-agent-seller-wb\node_modules\.pnpm\express@4.22.2\node_modules\express\lib\application.js:635:24)
+    at <anonymous> (C:\Users\admin\ai-agent-seller-wb\apps\api\src\main.ts:31:5)
+    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+Emitted 'error' event on Server instance at:
+    at emitErrorNT (node:net:1944:8)
+    at process.processTicksAndRejections (node:internal/process/task_queues:82:21) {
+  code: 'EADDRINUSE',
+  errno: -4091,
+  syscall: 'listen',
+  address: '::',
+  port: 4000
+}
+
+Node.js v20.19.2

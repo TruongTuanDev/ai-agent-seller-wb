@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  @apply bg-stone-950 text-stone-100;
+  background-image:
+    radial-gradient(circle at top left, rgba(217, 119, 6, 0.22), transparent 30%),
+    radial-gradient(circle at top right, rgba(29, 78, 216, 0.18), transparent 34%),
+    linear-gradient(180deg, #0c111d 0%, #111827 100%);
+}
+
+.card {
+  @apply rounded-3xl border border-white/10 bg-white/5 backdrop-blur;
+}

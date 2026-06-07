@@ -1,0 +1,7 @@
+
+> @wb/api@0.1.0 dev C:\Users\admin\ai-agent-seller-wb\apps\api
+> tsx watch src/main.ts
+
+C:\Users\admin\ai-agent-seller-wb\apps\api:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @wb/api@0.1.0 dev: `tsx watch src/main.ts`
+Exit status 4294967295
